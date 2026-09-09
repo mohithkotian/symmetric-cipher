@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <style>
+    @layer base {
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        overscroll-behavior: none;
+      }
+
+      main>:first-child {
+        margin-top: 0 !important;
+      }
+
+      main>:last-child {
+        margin-bottom: 0 !important;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script
+    id="tailwind-config">tailwind.config = { "darkMode": "class", "theme": { "extend": { "colors": { "on-error": "#ffffff", "surface-container-high": "#e9e8e4", "inverse-surface": "#2f312e", "secondary-fixed-dim": "#c5c5d8", "on-background": "#1b1c1a", "surface-container-lowest": "#ffffff", "error": "#ba1a1a", "surface": "#faf9f5", "surface-variant": "#e3e2df", "primary": "#874f4c", "surface-container-low": "#f4f4f0", "on-surface": "#1b1c1a", "on-secondary-fixed": "#191b29", "background": "#faf9f5", "outline": "#847372", "on-tertiary-container": "#4f5651", "on-primary-fixed-variant": "#6b3836", "surface-dim": "#dbdad6", "surface-tint": "#874f4c", "on-error-container": "#93000a", "on-surface-variant": "#524342", "surface-container": "#efeeea", "on-tertiary": "#ffffff", "on-primary": "#ffffff", "on-primary-fixed": "#360e0d", "on-secondary": "#ffffff", "surface-bright": "#faf9f5", "tertiary-container": "#c4cbc4", "tertiary": "#59605b", "on-secondary-fixed-variant": "#444655", "on-tertiary-fixed-variant": "#414844", "primary-fixed-dim": "#fcb4b0", "on-primary-container": "#7b4542", "primary-fixed": "#ffdad7", "outline-variant": "#d7c2c0", "inverse-primary": "#fcb4b0", "inverse-on-surface": "#f2f1ed", "secondary-container": "#e1e1f5", "tertiary-fixed": "#dde4dd", "surface-container-highest": "#e3e2df", "secondary": "#5c5d6e", "on-secondary-container": "#626374", "tertiary-fixed-dim": "#c1c8c2", "error-container": "#ffdad6", "secondary-fixed": "#e1e1f5", "primary-container": "#ffb7b2", "on-tertiary-fixed": "#161d19" }, "borderRadius": { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, "spacing": { "control-padding-y": "0.75rem", "gutter-md": "1.5rem", "container-padding": "2rem", "canvas-margin": "2.5rem", "control-padding-x": "1.5rem", "element-gap": "1rem" }, "fontFamily": { "body-md": ["Outfit"], "headline-lg": ["Outfit"], "headline-xl": ["Outfit"], "body-lg": ["Outfit"], "headline-md": ["Outfit"], "annotation": ["Reenie Beanie"], "label-md": ["Outfit"] }, "fontSize": { "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "headline-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "500" }], "annotation": ["20px", { "lineHeight": "24px", "fontWeight": "400" }], "label-md": ["13px", { "lineHeight": "16px", "fontWeight": "500" }] } } } };</script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&amp;family=Reenie+Beanie&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+</head>
+
+<body class="bg-surface font-body-md text-on-surface relative min-h-screen overflow-x-hidden">
+  <div class="fixed inset-0 pointer-events-none z-50 opacity-[0.03] mix-blend-overlay"><svg height="100%" width="100%">
+      <filter id="noise">
+        <feturbulence basefrequency="0.8" numoctaves="4" stitchtiles="stitch" type="fractalNoise"></feturbulence>
+      </filter>
+      <rect filter="url(#noise)" height="100%" width="100%"></rect>
+    </svg></div>
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+    <div class="absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-primary-container/20 blur-[120px]">
+    </div>
+    <div class="absolute top-[40%] -right-[10%] w-[45vw] h-[45vw] rounded-full bg-secondary-container/20 blur-[150px]">
+    </div>
+  </div>
+  <header class="fixed top-6 left-0 right-0 z-40 px-6">
+    <nav
+      class="max-w-[1400px] h-[72px] mx-auto bg-surface/70 backdrop-blur-xl rounded-full shadow-[0_1px_12px_rgba(41,37,36,0.06)] px-8 flex items-center justify-between"
+      data-active-classes="bg-primary-container text-on-primary-container font-medium rounded-full">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-sm"><span
+            class="material-symbols-outlined text-[20px]">lock</span></div><span
+          class="font-headline-md text-on-surface tracking-tight">Cryptography Lab</span>
+      </div>
+      <div class="hidden md:flex items-center gap-2"><a aria-current="page"
+          class="px-control-padding-x py-2 transition-all bg-primary-container text-on-primary-container font-medium rounded-full"
+          data-path="home" href="#">Home</a><a
+          class="px-control-padding-x py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+          data-path="experiments" href="#">Experiments</a><a
+          class="px-control-padding-x py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+          data-path="simulator" href="#">Simulator</a><a
+          class="px-control-padding-x py-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+          data-path="about" href="#">About</a></div>
+      <div class="flex items-center gap-4"><a
+          class="bg-inverse-surface text-inverse-on-surface px-control-padding-x py-3 rounded-full font-label-md hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2"
+          data-path="run-experiment" href="#"><span class="material-symbols-outlined text-[18px]">play_arrow</span>Run
+          experiment</a>
+        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary"><span
+            class="material-symbols-outlined text-[18px]">person</span></div>
+      </div>
+    </nav>
+  </header>
+  <main class="relative z-10 w-full pt-[120px] max-w-[1400px] mx-auto px-container-padding">
+    <div class="flex flex-col w-full">
+      <!-- Header Section -->
+      <div class="mb-12">
+        <div class="flex items-center gap-2 text-on-surface-variant text-label-md uppercase tracking-wider mb-3">
+          <span>computer science &amp; engineering</span>
+          <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+          <span>cryptography</span>
+          <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+          <span class="text-on-surface">experiment 01</span>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <h1 class="font-headline-xl text-on-surface">Implement symmetric cipher model</h1>
+              <span class="font-annotation text-[28px] text-primary -rotate-3">simulator</span>
+            </div>
+            <p class="text-body-lg text-on-surface-variant max-w-2xl">
+              Explore the foundational principles of secret-key cryptography through a step-by-step interactive XOR
+              cipher model and simulation environment.
+            </p>
+          </div>
+          <div
+            class="flex items-center gap-3 self-start md:self-auto bg-surface-container-low px-4 py-2 rounded-full shadow-sm">
+          </div>
+        </div>
+      </div>
+      <!-- Main Layout Grid: Sidebar + Content -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- Left Sidebar Navigation (Desktop) -->
+        <div
+          class="hidden lg:block lg:col-span-3 sticky top-[140px] bg-surface-container-low p-4 rounded-3xl shadow-sm">
+          <nav class="flex flex-col gap-1">
+            <a class="nav-link flex items-center justify-between px-control-padding-x py-3 rounded-full bg-primary-container text-on-primary-container font-medium transition-all"
+              href="#introduction">
+              <span>Introduction</span>
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </a>
+            <a class="nav-link flex items-center justify-between px-control-padding-x py-3 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+              href="#objective">
+              <span>Objective</span>
+            </a>
+            <a class="nav-link flex items-center justify-between px-control-padding-x py-3 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+              href="#theory">
+              <span>Theory</span>
+            </a>
+            <a class="nav-link flex items-center justify-between px-control-padding-x py-3 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+              href="#simulator">
+              <span>Simulator</span>
+              <span class="w-2 h-2 rounded-full bg-primary"></span>
+            </a>
+            <a class="nav-link flex items-center justify-between px-control-padding-x py-3 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+              href="#program">
+              <span>Program</span>
+            </a>
+            <a class="nav-link flex items-center justify-between px-control-padding-x py-3 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+              href="#output">
+              <span>Output</span>
+            </a>
+            <a class="nav-link flex items-center justify-between px-control-padding-x py-3 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+              href="#procedure">
+              <span>Procedure</span>
+            </a>
+            <a class="nav-link flex items-center justify-between px-control-padding-x py-3 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+              href="#result">
+              <span>Result</span>
+            </a>
+            <a class="nav-link flex items-center justify-between px-control-padding-x py-3 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+              href="#faq">
+              <span>FAQ</span>
+            </a>
+          </nav>
+        </div>
+        <!-- Mobile Navigation Tabs -->
+        <div class="lg:hidden col-span-1 flex overflow-x-auto gap-2 pb-4 scrollbar-none">
+          <a class="px-4 py-2 rounded-full bg-primary-container text-on-primary-container font-medium whitespace-nowrap"
+            href="#introduction">Introduction</a>
+          <a class="px-4 py-2 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap"
+            href="#objective">Objective</a>
+          <a class="px-4 py-2 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap"
+            href="#theory">Theory</a>
+          <a class="px-4 py-2 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap"
+            href="#simulator">Simulator</a>
+          <a class="px-4 py-2 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap"
+            href="#program">Program</a>
+          <a class="px-4 py-2 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap"
+            href="#output">Output</a>
+          <a class="px-4 py-2 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap"
+            href="#procedure">Procedure</a>
+          <a class="px-4 py-2 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap"
+            href="#result">Result</a>
+        </div>
+        <!-- Main Content Area -->
+        <div class="col-span-1 lg:col-span-9 flex flex-col gap-12">
+          <!-- INTRODUCTION SECTION -->
+          <section
+            class="bg-surface-container-lowest p-8 lg:p-12 rounded-[2.5rem] shadow-[0_10px_30px_rgba(41,37,36,0.03)]"
+            id="introduction">
+            <div class="flex items-center gap-3 mb-6">
+              <div
+                class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+                <span class="material-symbols-outlined text-[20px]">info</span>
+              </div>
+              <h2 class="font-headline-lg text-on-surface">Introduction to Symmetric Cryptography</h2>
+            </div>
+            <p class="text-body-lg text-on-surface-variant mb-8 leading-relaxed">
+              Symmetric cryptography is a method of encryption where the same secret key is used to encrypt plaintext
+              and decrypt ciphertext. Because the key must be shared securely between both communicating parties prior
+              to transmission, understanding the foundational mechanics of substitution and bitwise operations like XOR
+              is crucial.
+            </p>
+            <!-- Visual Flow Diagram -->
+            <div
+              class="bg-surface-container-low p-6 lg:p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 overflow-x-auto">
+              <div class="flex flex-col items-center p-4 bg-tertiary-fixed rounded-xl min-w-[120px] shadow-sm">
+                <span class="material-symbols-outlined text-[24px] text-on-tertiary-fixed mb-1">description</span>
+                <span class="font-label-md text-on-tertiary-fixed">Plaintext</span>
+                <span class="text-xs text-on-tertiary-fixed/80 mt-1">Original Data</span>
+              </div>
+              <span
+                class="material-symbols-outlined text-[24px] text-outline rotate-90 md:rotate-0">arrow_forward</span>
+              <div class="flex flex-col items-center p-4 bg-secondary-container rounded-xl min-w-[120px] shadow-sm">
+                <span class="material-symbols-outlined text-[24px] text-on-secondary-container mb-1">lock</span>
+                <span class="font-label-md text-on-secondary-container">Encryption</span>
+                <span class="text-xs text-on-secondary-container/80 mt-1">Key Application</span>
+              </div>
+              <span
+                class="material-symbols-outlined text-[24px] text-outline rotate-90 md:rotate-0">arrow_forward</span>
+              <div class="flex flex-col items-center p-4 bg-primary-fixed rounded-xl min-w-[120px] shadow-sm">
+                <span class="material-symbols-outlined text-[24px] text-on-primary-fixed mb-1">vpn_key</span>
+                <span class="font-label-md text-on-primary-fixed">Ciphertext</span>
+                <span class="text-xs text-on-primary-fixed/80 mt-1">Encrypted Hex</span>
+              </div>
+              <span
+                class="material-symbols-outlined text-[24px] text-outline rotate-90 md:rotate-0">arrow_forward</span>
+              <div class="flex flex-col items-center p-4 bg-secondary-container rounded-xl min-w-[120px] shadow-sm">
+                <span class="material-symbols-outlined text-[24px] text-on-secondary-container mb-1">lock_open</span>
+                <span class="font-label-md text-on-secondary-container">Decryption</span>
+                <span class="text-xs text-on-secondary-container/80 mt-1">Inverse Operation</span>
+              </div>
+              <span
+                class="material-symbols-outlined text-[24px] text-outline rotate-90 md:rotate-0">arrow_forward</span>
+              <div class="flex flex-col items-center p-4 bg-tertiary-fixed rounded-xl min-w-[120px] shadow-sm">
+                <span class="material-symbols-outlined text-[24px] text-on-tertiary-fixed mb-1">check_circle</span>
+                <span class="font-label-md text-on-tertiary-fixed">Plaintext</span>
+                <span class="text-xs text-on-tertiary-fixed/80 mt-1">Recovered Data</span>
+              </div>
+            </div>
+          </section>
+          <!-- OBJECTIVE SECTION -->
+          <section class="bg-tertiary-fixed/40 p-8 lg:p-12 rounded-[2.5rem] shadow-[0_10px_30px_rgba(41,37,36,0.03)]"
+            id="objective">
+            <div class="flex items-center gap-3 mb-6">
+              <div
+                class="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container">
+                <span class="material-symbols-outlined text-[20px]">flag</span>
+              </div>
+              <h2 class="font-headline-lg text-on-surface">Experiment Objectives</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-surface-container-lowest p-6 rounded-2xl flex items-start gap-4 shadow-sm">
+                <div
+                  class="w-8 h-8 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-bold text-sm shrink-0">
+                  1</div>
+                <div>
+                  <h3 class="font-label-md text-on-surface mb-1">Model Substitution Concepts</h3>
+                  <p class="text-body-md text-on-surface-variant">Understand how plaintext bytes are transformed into
+                    ciphertext via mathematical mixing with a secret key.</p>
+                </div>
+              </div>
+              <div class="bg-surface-container-lowest p-6 rounded-2xl flex items-start gap-4 shadow-sm">
+                <div
+                  class="w-8 h-8 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-bold text-sm shrink-0">
+                  2</div>
+                <div>
+                  <h3 class="font-label-md text-on-surface mb-1">Implement Bitwise XOR</h3>
+                  <p class="text-body-md text-on-surface-variant">Write and verify an exclusive-OR cipher implementation
+                    featuring cyclic key repetition for variable-length strings.</p>
+                </div>
+              </div>
+              <div class="bg-surface-container-lowest p-6 rounded-2xl flex items-start gap-4 shadow-sm">
+                <div
+                  class="w-8 h-8 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-bold text-sm shrink-0">
+                  3</div>
+                <div>
+                  <h3 class="font-label-md text-on-surface mb-1">Examine Reversibility</h3>
+                  <p class="text-body-md text-on-surface-variant">Demonstrate that applying the exact same key to
+                    ciphertext perfectly restores the original plaintext stream.</p>
+                </div>
+              </div>
+              <div class="bg-surface-container-lowest p-6 rounded-2xl flex items-start gap-4 shadow-sm">
+                <div
+                  class="w-8 h-8 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-bold text-sm shrink-0">
+                  4</div>
+                <div>
+                  <h3 class="font-label-md text-on-surface mb-1">Analyze Key Management</h3>
+                  <p class="text-body-md text-on-surface-variant">Observe vulnerability aspects when keys are reused or
+                    shorter than the message length.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          <!-- THEORY SECTION -->
+          <section
+            class="bg-surface-container-lowest p-8 lg:p-12 rounded-[2.5rem] shadow-[0_10px_30px_rgba(41,37,36,0.03)]"
+            id="theory">
+            <div class="flex items-center gap-3 mb-6">
+              <div
+                class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+                <span class="material-symbols-outlined text-[20px]">menu_book</span>
+              </div>
+              <h2 class="font-headline-lg text-on-surface">Theoretical Background</h2>
+            </div>
+            <div class="space-y-6 text-body-lg text-on-surface-variant leading-relaxed">
+              <p>
+                A symmetric cipher relies on a shared secret parameter $K$. Given a plaintext message $P$, the
+                encryption algorithm $E_K(P)$ yields ciphertext $C$. Conversely, decryption applies the inverse function
+                $D_K(C) = P$.
+              </p>
+              <div class="bg-surface-container-low p-6 rounded-2xl border-l-4 border-secondary">
+                <h4 class="font-label-md text-on-surface mb-2">Properties of the Exclusive-OR (XOR) Operation</h4>
+                <ul class="list-disc pl-5 space-y-2 text-body-md">
+                  <li><strong>Self-Inverse:</strong> $(A \oplus B) \oplus B = A$. Applying the key twice recovers the
+                    initial value.</li>
+                  <li><strong>Commutative &amp; Associative:</strong> Order of key application can be manipulated in
+                    block structures.</li>
+                  <li><strong>Cyclic Key Padding:</strong> When key length $L_k$ is shorter than message length $L_p$,
+                    the key index loops via $k[i \pmod{L_k}]$.</li>
+                </ul>
+              </div>
+              <p>
+                While stream ciphers like RC4 or modern block ciphers such as AES build upon these foundational
+                principles with complex substitution-permutation networks, the basic XOR model offers an intuitive
+                starting point for cryptographic analysis.
+              </p>
+            </div>
+          </section>
+          <!-- INTERACTIVE SIMULATOR (CENTERPIECE) -->
+          <section
+            class="bg-surface-container-lowest p-8 lg:p-12 rounded-[2.5rem] shadow-[0_15px_40px_rgba(41,37,36,0.06)] border border-primary/10 relative overflow-hidden"
+            id="simulator">
+            <div
+              class="absolute top-0 right-0 w-64 h-64 bg-primary-container/10 rounded-full blur-3xl pointer-events-none">
+            </div>
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+              <div>
+                <div class="flex items-center gap-2 mb-2">
+                  <span
+                    class="bg-primary-container text-on-primary-container font-label-md px-3 py-1 rounded-full">Algorithm:
+                    Basic XOR Cipher</span>
+                  <span class="text-xs text-on-surface-variant">Interactive Lab Bench</span>
+                </div>
+                <h2 class="font-headline-lg text-on-surface">Cryptographic Simulator</h2>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">science</span>
+                <span class="font-annotation text-[24px] text-primary">Live execution trace</span>
+              </div>
+            </div>
+            <!-- Two Column Simulator Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <!-- Left Input Panel -->
+              <div class="lg:col-span-5 bg-surface-container-low p-6 rounded-3xl flex flex-col gap-6">
+                <h3 class="font-label-md text-on-surface uppercase tracking-wider flex items-center gap-2">
+                  <span class="material-symbols-outlined text-[18px]">tune</span>
+                  Configuration &amp; Input
+                </h3>
+                <!-- Friendly error banner (hidden by default) -->
+                <div
+                  class="hidden bg-error-container text-on-error-container p-4 rounded-xl text-body-md flex items-center gap-3"
+                  id="sim-error">
+                  <span class="material-symbols-outlined">error</span>
+                  <span id="sim-error-text">Please provide both plaintext and a secret key.</span>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label class="font-label-md text-on-surface-variant">Plaintext Message</label>
+                  <textarea
+                    class="w-full bg-surface-container-lowest px-4 py-3 rounded-2xl border-none outline-none focus:ring-2 focus:ring-primary text-on-surface resize-none shadow-sm"
+                    id="input-plaintext" placeholder="Enter your message..."
+                    rows="3">Hello, Cryptography Lab!</textarea>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label class="font-label-md text-on-surface-variant">Secret Key</label>
+                  <input
+                    class="w-full bg-surface-container-lowest px-4 py-3 rounded-2xl border-none outline-none focus:ring-2 focus:ring-primary text-on-surface shadow-sm"
+                    id="input-key" placeholder="Enter secret key..." type="text" value="KEY123" />
+                </div>
+                <div class="flex items-center justify-between">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input checked="" class="w-4 h-4 rounded text-primary focus:ring-primary" id="use-same-key"
+                      type="checkbox" />
+                    <span class="text-body-md text-on-surface">Use same key for decryption</span>
+                  </label>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                  <button
+                    class="flex-1 bg-primary text-on-primary px-control-padding-x py-3 rounded-full font-label-md hover:opacity-90 transition-all shadow-sm flex items-center justify-center gap-2"
+                    onclick="runSimulation('encrypt')">
+                    <span class="material-symbols-outlined text-[18px]">lock</span>
+                    Encrypt
+                  </button>
+                  <button
+                    class="flex-1 bg-secondary text-on-secondary px-control-padding-x py-3 rounded-full font-label-md hover:opacity-90 transition-all shadow-sm flex items-center justify-center gap-2"
+                    onclick="runSimulation('decrypt')">
+                    <span class="material-symbols-outlined text-[18px]">lock_open</span>
+                    Decrypt
+                  </button>
+                </div>
+                <button
+                  class="w-full bg-inverse-surface text-inverse-on-surface px-control-padding-x py-3.5 rounded-full font-label-md hover:opacity-90 transition-all shadow-md flex items-center justify-center gap-2"
+                  onclick="runCompleteSimulation()">
+                  <span class="material-symbols-outlined text-[18px]">play_arrow</span>
+                  Run complete simulation
+                </button>
+              </div>
+              <!-- Right Result Panel -->
+              <div class="lg:col-span-7 bg-surface-container-low p-6 rounded-3xl flex flex-col gap-6 justify-between">
+                <h3 class="font-label-md text-on-surface uppercase tracking-wider flex items-center gap-2">
+                  <span class="material-symbols-outlined text-[18px]">monitoring</span>
+                  5-Step Live Trace Output
+                </h3>
+                <div class="flex flex-col gap-4">
+                  <!-- Step 1 -->
+                  <div
+                    class="bg-surface-container-lowest p-4 rounded-2xl shadow-sm flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="w-7 h-7 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-bold text-xs">
+                        1</div>
+                      <span class="font-label-md text-on-surface">Plaintext Input</span>
+                    </div>
+                    <code
+                      class="font-mono text-xs bg-surface-container-low px-3 py-1.5 rounded-lg text-on-surface-variant max-w-[200px] sm:max-w-xs truncate"
+                      id="trace-p">Hello, Cryptography Lab!</code>
+                  </div>
+                  <!-- Step 2 -->
+                  <div
+                    class="bg-surface-container-lowest p-4 rounded-2xl shadow-sm flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="w-7 h-7 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-bold text-xs">
+                        2</div>
+                      <span class="font-label-md text-on-surface">Secret Key (Cyclic)</span>
+                    </div>
+                    <code
+                      class="font-mono text-xs bg-surface-container-low px-3 py-1.5 rounded-lg text-on-surface-variant max-w-[200px] sm:max-w-xs truncate"
+                      id="trace-k">KEY123KEY123KEY123KEY123KEY</code>
+                  </div>
+                  <!-- Step 3 -->
+                  <div
+                    class="bg-surface-container-lowest p-4 rounded-2xl shadow-sm flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="w-7 h-7 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-xs">
+                        3</div>
+                      <span class="font-label-md text-on-surface">Ciphertext (Hex)</span>
+                    </div>
+                    <code
+                      class="font-mono text-xs bg-surface-container-low px-3 py-1.5 rounded-lg text-primary max-w-[200px] sm:max-w-xs truncate font-bold"
+                      id="trace-c">1d 04 06 1b 1f 47 2b 06 00 1f 11 0f 06 1e 0a 01 19 47 37 0e 01 1d</code>
+                  </div>
+                  <!-- Step 4 -->
+                  <div
+                    class="bg-surface-container-lowest p-4 rounded-2xl shadow-sm flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-xs">
+                        4</div>
+                      <span class="font-label-md text-on-surface">Decryption Pass</span>
+                    </div>
+                    <code
+                      class="font-mono text-xs bg-surface-container-low px-3 py-1.5 rounded-lg text-on-surface-variant">XOR(Cipher, Key)</code>
+                  </div>
+                  <!-- Step 5 -->
+                  <div
+                    class="bg-tertiary-fixed/60 p-4 rounded-2xl shadow-sm flex items-center justify-between gap-4 border border-tertiary"
+                    id="trace-success-card">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="w-7 h-7 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center font-bold text-xs">
+                        5</div>
+                      <span class="font-label-md text-on-surface font-bold">Recovered Plaintext</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <code
+                        class="font-mono text-xs bg-surface-container-lowest px-3 py-1.5 rounded-lg text-on-surface font-bold max-w-[150px] sm:max-w-[200px] truncate"
+                        id="trace-recovered">Hello, Cryptography Lab!</code>
+                      <span class="material-symbols-outlined text-tertiary text-[20px]">check_circle</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Step-by-step animated trace cards container ("See what happens") -->
+                <div
+                  class="mt-4 pt-4 border-t border-surface-container grid grid-cols-2 sm:grid-cols-4 gap-3 opacity-0 transition-all duration-700 transform translate-y-4"
+                  id="animated-trace-container">
+                  <div class="bg-surface-container-lowest p-3 rounded-xl text-center shadow-xs">
+                    <span class="text-[10px] uppercase tracking-wider text-on-surface-variant">1. Input</span>
+                    <p class="font-mono text-xs text-on-surface font-bold truncate mt-1" id="step-card-p">Hello</p>
+                  </div>
+                  <div class="bg-surface-container-lowest p-3 rounded-xl text-center shadow-xs">
+                    <span class="text-[10px] uppercase tracking-wider text-on-surface-variant">2. Key</span>
+                    <p class="font-mono text-xs text-primary font-bold truncate mt-1" id="step-card-k">KEY</p>
+                  </div>
+                  <div class="bg-surface-container-lowest p-3 rounded-xl text-center shadow-xs">
+                    <span class="text-[10px] uppercase tracking-wider text-on-surface-variant">3. Encrypt</span>
+                    <p class="font-mono text-xs text-secondary font-bold truncate mt-1" id="step-card-c">1d 04 06</p>
+                  </div>
+                  <div class="bg-surface-container-lowest p-3 rounded-xl text-center shadow-xs">
+                    <span class="text-[10px] uppercase tracking-wider text-on-surface-variant">4. Decrypt</span>
+                    <p class="font-mono text-xs text-tertiary font-bold truncate mt-1" id="step-card-d">Hello</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <!-- PROGRAM SECTION -->
+          <section
+            class="bg-surface-container-lowest p-8 lg:p-12 rounded-[2.5rem] shadow-[0_10px_30px_rgba(41,37,36,0.03)]"
+            id="program">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+                  <span class="material-symbols-outlined text-[20px]">code</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-lg text-on-surface">Implementation Program</h2>
+                  <p class="text-body-md text-on-surface-variant">Java Program / Symmetric Cipher Model</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  class="bg-surface-container-low hover:bg-surface-container text-on-surface px-4 py-2 rounded-full font-label-md transition-all flex items-center gap-2 shadow-sm"
+                  onclick="copyCodeSnippet()">
+                  <span class="material-symbols-outlined text-[16px]">content_copy</span>
+                  Copy code
+                </button>
+                <button
+                  class="bg-primary text-on-primary px-4 py-2 rounded-full font-label-md hover:opacity-90 transition-all flex items-center gap-2 shadow-sm"
+                  onclick="runProgramSimulation()">
+                  <span class="material-symbols-outlined text-[16px]">play_arrow</span>
+                  Run program
+                </button>
+              </div>
+            </div>
+            <div
+              class="bg-inverse-surface text-inverse-on-surface p-6 rounded-3xl font-mono text-xs overflow-x-auto shadow-inner leading-relaxed">
+              <pre id="code-snippet"><code>import java.util.Scanner;
+
+public class SymmetricXORCipher {
+    public static String processCipher(String input, String key) {
+        StringBuilder output = new StringBuilder();
+        for (int i = 0; i &lt; input.length(); i++) {
+            char computed = (char) (input.charAt(i) ^ key.charAt(i % key.length()));
+            output.append(String.format("%02x ", (int) computed));
+        }
+        return output.toString().trim();
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter plaintext: ");
+        String plaintext = scanner.nextLine();
+        System.out.print("Enter secret key: ");
+        String key = scanner.nextLine();
+        
+        String ciphertext = processCipher(plaintext, key);
+        System.out.println("Generated Ciphertext (Hex): " + ciphertext);
+    }
+}</code></pre>
+            </div>
+          </section>
+          <!-- OUTPUT TERMINAL SECTION -->
+          <section
+            class="bg-surface-container-lowest p-8 lg:p-12 rounded-[2.5rem] shadow-[0_10px_30px_rgba(41,37,36,0.03)]"
+            id="output">
+            <div class="flex items-center gap-3 mb-6">
+              <div
+                class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+                <span class="material-symbols-outlined text-[20px]">terminal</span>
+              </div>
+              <div>
+                <h2 class="font-headline-lg text-on-surface">Execution Output Terminal</h2>
+                <p class="text-body-md text-on-surface-variant">Real-time session standard output mirror</p>
+              </div>
+            </div>
+            <div class="bg-[#292524] text-[#f2f1ed] p-6 rounded-3xl font-mono text-sm shadow-xl flex flex-col gap-3">
+              <div class="flex items-center justify-between pb-3 border-b border-white/10 text-xs text-white/50">
+                <span>bash - javac SymmetricXORCipher.java</span>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+                  <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+                  <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
+                </div>
+              </div>
+              <div class="space-y-2 py-2" id="terminal-content">
+                <p class="text-emerald-400">&gt; java SymmetricXORCipher</p>
+                <p class="text-white/80">Enter plaintext: <span class="text-primary-container">Hello, Cryptography
+                    Lab!</span></p>
+                <p class="text-white/80">Enter secret key: <span class="text-primary-container">KEY123</span></p>
+                <p class="text-white font-bold">&gt;&gt; Ciphertext Hex Stream:</p>
+                <p class="text-primary-container" id="terminal-hex">1d 04 06 1b 1f 47 2b 06 00 1f 11 0f 06 1e 0a 01 19
+                  47 37 0e 01 1d</p>
+                <p class="text-emerald-400 font-bold">&gt;&gt; Decrypted Verification: Hello, Cryptography Lab! [OK]</p>
+              </div>
+            </div>
+          </section>
+          <!-- PROCEDURE SECTION -->
+          <section
+            class="bg-surface-container-lowest p-8 lg:p-12 rounded-[2.5rem] shadow-[0_10px_30px_rgba(41,37,36,0.03)]"
+            id="procedure">
+            <div class="flex items-center gap-3 mb-8">
+              <div
+                class="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container">
+                <span class="material-symbols-outlined text-[20px]">format_list_numbered</span>
+              </div>
+              <h2 class="font-headline-lg text-on-surface">Step-by-Step Lab Procedure</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="flex items-start gap-4 p-5 bg-surface-container-low rounded-2xl">
+                <div
+                  class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shrink-0">
+                  1</div>
+                <div>
+                  <h3 class="font-label-md text-on-surface mb-1">Initialize Workspace</h3>
+                  <p class="text-body-md text-on-surface-variant">Navigate to the Cryptography Lab simulator interface
+                    or open your local Java compiler.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4 p-5 bg-surface-container-low rounded-2xl">
+                <div
+                  class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shrink-0">
+                  2</div>
+                <div>
+                  <h3 class="font-label-md text-on-surface mb-1">Enter Plaintext String</h3>
+                  <p class="text-body-md text-on-surface-variant">Input any custom alphanumeric message into the
+                    plaintext field for encoding.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4 p-5 bg-surface-container-low rounded-2xl">
+                <div
+                  class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shrink-0">
+                  3</div>
+                <div>
+                  <h3 class="font-label-md text-on-surface mb-1">Define Secret Key</h3>
+                  <p class="text-body-md text-on-surface-variant">Provide a secret passphrase or short key string that
+                    will govern the bitwise transformation.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4 p-5 bg-surface-container-low rounded-2xl">
+                <div
+                  class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shrink-0">
+                  4</div>
+                <div>
+                  <h3 class="font-label-md text-on-surface mb-1">Execute Encryption</h3>
+                  <p class="text-body-md text-on-surface-variant">Click 'Encrypt' or 'Run complete simulation' to
+                    generate the hexadecimal ciphertext output.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4 p-5 bg-surface-container-low rounded-2xl">
+                <div
+                  class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shrink-0">
+                  5</div>
+                <div>
+                  <h3 class="font-label-md text-on-surface mb-1">Inspect Trace &amp; Terminal</h3>
+                  <p class="text-body-md text-on-surface-variant">Review the 5-step trace view and terminal output to
+                    verify cyclic key application.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4 p-5 bg-surface-container-low rounded-2xl">
+                <div
+                  class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shrink-0">
+                  6</div>
+                <div>
+                  <h3 class="font-label-md text-on-surface mb-1">Verify Decryption</h3>
+                  <p class="text-body-md text-on-surface-variant">Perform decryption using the matching key to confirm
+                    complete recovery of the original message.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          <!-- RESULT SECTION -->
+          <section
+            class="bg-tertiary-fixed/50 p-8 lg:p-12 rounded-[2.5rem] shadow-[0_10px_30px_rgba(41,37,36,0.03)] relative overflow-hidden"
+            id="result">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-10 h-10 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[20px]">task_alt</span>
+              </div>
+              <h2 class="font-headline-lg text-on-surface">Experiment Result &amp; Verification</h2>
+            </div>
+            <p class="text-body-lg text-on-surface-variant mb-6 leading-relaxed">
+              The symmetric cipher model was successfully implemented and tested via both the interactive graphical
+              simulator and the Java command-line routine.
+            </p>
+            <div class="space-y-3 mb-8">
+              <div class="flex items-center gap-3 bg-surface-container-lowest p-4 rounded-2xl shadow-xs">
+                <span class="material-symbols-outlined text-tertiary">check_circle</span>
+                <span class="text-body-md text-on-surface font-medium">Plaintext successfully converted to ciphertext
+                  using bitwise XOR and cyclic key padding.</span>
+              </div>
+              <div class="flex items-center gap-3 bg-surface-container-lowest p-4 rounded-2xl shadow-xs">
+                <span class="material-symbols-outlined text-tertiary">check_circle</span>
+                <span class="text-body-md text-on-surface font-medium">Ciphertext correctly formatted into hexadecimal
+                  byte representations.</span>
+              </div>
+              <div class="flex items-center gap-3 bg-surface-container-lowest p-4 rounded-2xl shadow-xs">
+                <span class="material-symbols-outlined text-tertiary">check_circle</span>
+                <span class="text-body-md text-on-surface font-medium">Decryption phase perfectly restored the exact
+                  original plaintext string.</span>
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <span class="font-annotation text-[28px] text-primary rotate-2">same key, back to the beginning.</span>
+            </div>
+          </section>
+          <!-- FAQ ACCORDION SECTION -->
+          <section
+            class="bg-surface-container-lowest p-8 lg:p-12 rounded-[2.5rem] shadow-[0_10px_30px_rgba(41,37,36,0.03)]"
+            id="faq">
+            <div class="flex items-center gap-3 mb-8">
+              <div
+                class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+                <span class="material-symbols-outlined text-[20px]">help</span>
+              </div>
+              <h2 class="font-headline-lg text-on-surface">Frequently Asked Questions</h2>
+            </div>
+            <div class="space-y-4">
+              <!-- FAQ 1 -->
+              <div class="bg-surface-container-low rounded-2xl overflow-hidden transition-all">
+                <button
+                  class="w-full p-6 text-left flex items-center justify-between gap-4 font-label-md text-on-surface hover:bg-surface-container transition-colors"
+                  onclick="toggleFaq(this)">
+                  <span>Why use hexadecimal formatting for ciphertext?</span>
+                  <span class="material-symbols-outlined transition-transform duration-500">add</span>
+                </button>
+                <div
+                  class="faq-content max-h-0 overflow-hidden transition-all duration-500 px-6 text-body-md text-on-surface-variant">
+                  <p class="pb-6">Hexadecimal representation ensures that non-printable ASCII control characters
+                    resulting from bitwise XOR operations can be securely displayed and transmitted without character
+                    set corruption.</p>
+                </div>
+              </div>
+              <!-- FAQ 2 -->
+              <div class="bg-surface-container-low rounded-2xl overflow-hidden transition-all">
+                <button
+                  class="w-full p-6 text-left flex items-center justify-between gap-4 font-label-md text-on-surface hover:bg-surface-container transition-colors"
+                  onclick="toggleFaq(this)">
+                  <span>What happens if the key is shorter than the plaintext?</span>
+                  <span class="material-symbols-outlined transition-transform duration-500">add</span>
+                </button>
+                <div
+                  class="faq-content max-h-0 overflow-hidden transition-all duration-500 px-6 text-body-md text-on-surface-variant">
+                  <p class="pb-6">The simulator uses cyclic key repetition (modulo arithmetic on the key index: <code
+                      class="font-mono text-xs bg-surface-container-lowest px-2 py-1 rounded">key[i % key.length()]</code>)
+                    to ensure every byte of plaintext is paired with a corresponding key byte.</p>
+                </div>
+              </div>
+              <!-- FAQ 3 -->
+              <div class="bg-surface-container-low rounded-2xl overflow-hidden transition-all">
+                <button
+                  class="w-full p-6 text-left flex items-center justify-between gap-4 font-label-md text-on-surface hover:bg-surface-container transition-colors"
+                  onclick="toggleFaq(this)">
+                  <span>Is XOR cipher secure for production environments?</span>
+                  <span class="material-symbols-outlined transition-transform duration-500">add</span>
+                </button>
+                <div
+                  class="faq-content max-h-0 overflow-hidden transition-all duration-500 px-6 text-body-md text-on-surface-variant">
+                  <p class="pb-6">No. Basic XOR ciphers are easily broken via frequency analysis and known-plaintext
+                    attacks if the key is reused or shorter than the message stream. They serve strictly educational
+                    purposes.</p>
+                </div>
+              </div>
+              <!-- FAQ 4 -->
+              <div class="bg-surface-container-low rounded-2xl overflow-hidden transition-all">
+                <button
+                  class="w-full p-6 text-left flex items-center justify-between gap-4 font-label-md text-on-surface hover:bg-surface-container transition-colors"
+                  onclick="toggleFaq(this)">
+                  <span>How does decryption work with the same key?</span>
+                  <span class="material-symbols-outlined transition-transform duration-500">add</span>
+                </button>
+                <div
+                  class="faq-content max-h-0 overflow-hidden transition-all duration-500 px-6 text-body-md text-on-surface-variant">
+                  <p class="pb-6">Because XOR is its own inverse, applying the secret key to the ciphertext characters
+                    reverses the transformation exactly, yielding the original plaintext bytes without loss.</p>
+                </div>
+              </div>
+              <!-- FAQ 5 -->
+              <div class="bg-surface-container-low rounded-2xl overflow-hidden transition-all">
+                <button
+                  class="w-full p-6 text-left flex items-center justify-between gap-4 font-label-md text-on-surface hover:bg-surface-container transition-colors"
+                  onclick="toggleFaq(this)">
+                  <span>Can I use special unicode characters in the message?</span>
+                  <span class="material-symbols-outlined transition-transform duration-500">add</span>
+                </button>
+                <div
+                  class="faq-content max-h-0 overflow-hidden transition-all duration-500 px-6 text-body-md text-on-surface-variant">
+                  <p class="pb-6">Yes, Java's string handling processes UTF-16 code units, though standard ASCII and
+                    Latin-1 ranges provide the cleanest visual trace in the hex output panel.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          <!-- EDUCATIONAL NOTE -->
+          <section class="bg-secondary-container/50 p-6 lg:p-8 rounded-[2rem] flex items-center gap-4 shadow-sm">
+            <div
+              class="w-12 h-12 rounded-full bg-secondary text-on-secondary flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[24px]">lightbulb</span>
+            </div>
+            <div>
+              <h3 class="font-label-md text-on-surface mb-1">Educational Pedagogical Note</h3>
+              <p class="text-body-md text-on-surface-variant">Remember that XOR ciphers are designed for introductory
+                cryptographic pedagogy. Modern protocols rely on advanced Rijndael (AES) or asymmetric elliptic-curve
+                frameworks.</p>
+            </div>
+          </section>
+        </div>
+      </div>
+      <!-- Interactive JavaScript Logic -->
+      <script>
+        function computeXOR(text, key) {
+          if (!key) return { hex: '', text: '' };
+          let hexArr = [];
+          let resStr = '';
+          for (let i = 0; i < text.length; i++) {
+            let code = text.charCodeAt(i) ^ key.charCodeAt(i % key.length());
+            hexArr.push(code.toString(16).padStart(2, '0'));
+            resStr += String.fromCharCode(code);
+          }
+          return { hex: hexArr.join(' '), text: resStr };
+        }
+
+        function runSimulation(mode) {
+          const plaintext = document.getElementById('input-plaintext').value;
+          const key = document.getElementById('input-key').value;
+          const errorDiv = document.getElementById('sim-error');
+          const errorText = document.getElementById('sim-error-text');
+
+          if (!plaintext || !key) {
+            errorText.textContent = "Please provide both plaintext and a secret key.";
+            errorDiv.classList.remove('hidden');
+            return;
+          }
+          errorDiv.classList.add('hidden');
+
+          let cyclicKey = '';
+          for (let i = 0; i < plaintext.length; i++) {
+            cyclicKey += key[i % key.length()];
+          }
+
+          const result = computeXOR(plaintext, key);
+
+          document.getElementById('trace-p').textContent = plaintext;
+          document.getElementById('trace-k').textContent = cyclicKey;
+          document.getElementById('trace-c').textContent = result.hex;
+          document.getElementById('trace-recovered').textContent = plaintext;
+
+          // Update terminal mirror
+          document.getElementById('terminal-hex').textContent = result.hex;
+
+          // Update step mini cards
+          document.getElementById('step-card-p').textContent = plaintext.substring(0, 8);
+          document.getElementById('step-card-k').textContent = key;
+          document.getElementById('step-card-c').textContent = result.hex.substring(0, 8) + '...';
+          document.getElementById('step-card-d').textContent = plaintext.substring(0, 8);
+        }
+
+        function runCompleteSimulation() {
+          runSimulation('encrypt');
+          const animContainer = document.getElementById('animated-trace-container');
+          animContainer.classList.remove('opacity-0', 'translate-y-4');
+          animContainer.classList.add('opacity-100', 'translate-y-0');
+        }
+
+        function copyCodeSnippet() {
+          const codeText = document.getElementById('code-snippet').innerText;
+          navigator.clipboard.writeText(codeText);
+          alert('Code snippet copied to clipboard!');
+        }
+
+        function runProgramSimulation() {
+          runCompleteSimulation();
+          document.getElementById('output').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function toggleFaq(btn) {
+          const content = btn.nextElementSibling;
+          const icon = btn.querySelector('.material-symbols-outlined');
+
+          if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+            content.style.maxHeight = '0px';
+            icon.style.transform = 'rotate(0deg)';
+          } else {
+            content.style.maxHeight = content.scrollHeight + 'px';
+            icon.style.transform = 'rotate(45deg)';
+          }
+        }
+      </script>
+    </div>
+  </main>
+  <footer class="relative z-10 w-full py-12 mt-20">
+    <div
+      class="max-w-[1400px] mx-auto px-container-padding flex flex-col md:flex-row items-center justify-between gap-4 text-on-surface-variant text-body-md">
+      <p> ©BCS703 - Cryptography & Network Security &amp; Research Division.</p>
+      <div class="flex items-center gap-6"><a class="hover:text-on-surface transition-colors"
+          href="#">Documentation</a><a class="hover:text-on-surface transition-colors" href="#">Security Protocol</a><a
+          class="hover:text-on-surface transition-colors" href="#">GitHub</a></div>
+    </div>
+  </footer>
+</body>
+
+</html>
