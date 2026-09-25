@@ -94,7 +94,7 @@ public class SymmetricMOD26Cipher {
         System.out.println("--- Verification ---");
         System.out.println();
         if (recoveredText.equals(plaintext)) {
-            System.out.println("[OK] Verification successful:");
+            System.out.println("[OK] Round-trip verified:");
             System.out.println("Recovered plaintext matches original message!");
         } else {
             System.out.println("[FAIL] Verification failed:");

@@ -176,7 +176,7 @@ function updateVerificationUI(isVerified) {
     card.className = 'bg-tertiary-fixed/60 p-4 rounded-2xl shadow-sm flex items-center justify-between gap-4 border border-tertiary transition-all';
     icon.textContent = 'check_circle';
     icon.className = 'material-symbols-outlined text-tertiary text-[20px]';
-    label.textContent = '✓ Verification successful';
+    label.textContent = '✓ Round-trip verified';
   } else {
     card.className = 'bg-error-container/40 p-4 rounded-2xl shadow-sm flex items-center justify-between gap-4 border border-error transition-all';
     icon.textContent = 'cancel';
@@ -216,7 +216,7 @@ function updateTerminal(plaintext, key, ciphertext, recoveredText, isVerified = 
     ['text-[#F4A261] font-bold', '--- Verification ---'],
     ['text-white/80', ''],
     [isVerified ? 'text-[#A8D5BA] font-bold' : 'text-[#FFB4AB] font-bold', isVerified
-      ? '[OK] Verification successful:'
+      ? '[OK] Round-trip verified:'
       : '[FAIL] Verification failed:'],
     [isVerified ? 'text-[#A8D5BA] font-bold' : 'text-[#FFB4AB] font-bold', isVerified
       ? 'Recovered plaintext matches original message!'
