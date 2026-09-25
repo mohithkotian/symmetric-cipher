@@ -240,11 +240,11 @@
 </div>
 <div class="flex flex-col gap-2">
 <label class="font-label-md text-on-surface-variant" for="input-plaintext">Plaintext Message</label>
-<textarea class="w-full bg-surface-container-lowest px-4 py-3 rounded-2xl border border-outline-variant outline-none focus:ring-2 focus:ring-primary/40 text-on-surface resize-none shadow-xs text-sm sm:text-base transition-all" id="input-plaintext" placeholder="Enter your message..." rows="3">Hello World</textarea>
+<textarea class="w-full bg-surface-container-lowest px-4 py-3 rounded-2xl border border-outline-variant outline-none focus:ring-2 focus:ring-primary/40 text-on-surface resize-none shadow-xs text-sm sm:text-base transition-all" id="input-plaintext" maxlength="10000" placeholder="Enter your message..." rows="3">Hello World</textarea>
 </div>
 <div class="flex flex-col gap-2">
 <label class="font-label-md text-on-surface-variant" for="input-key">Secret Key</label>
-<input class="w-full bg-surface-container-lowest px-4 py-3 rounded-2xl border border-outline-variant outline-none focus:ring-2 focus:ring-primary/40 text-on-surface shadow-xs text-sm sm:text-base transition-all" id="input-key" min="0" placeholder="Enter a numeric key..." type="number" value="30"/>
+<input class="w-full bg-surface-container-lowest px-4 py-3 rounded-2xl border border-outline-variant outline-none focus:ring-2 focus:ring-primary/40 text-on-surface shadow-xs text-sm sm:text-base transition-all" id="input-key" maxlength="100" min="0" placeholder="Enter a numeric key..." type="number" value="30"/>
 </div>
 <div class="bg-surface-container-lowest rounded-2xl px-4 py-3 border border-outline-variant">
 <div class="flex items-center justify-between gap-3">

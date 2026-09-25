@@ -1,4 +1,7 @@
 // Numeric-key modulo-26 Caesar cipher engine
+const MAX_PLAINTEXT_LENGTH = 10000;
+const MAX_KEY_LENGTH = 100;
+
 function parseNumericKey(key) {
   const keyText = String(key).trim();
   if (!/^\d+$/.test(keyText)) {
@@ -49,7 +52,15 @@ function validateInputs(plaintext, key) {
   if (!plaintext || plaintext.length === 0) {
     return { valid: false, message: 'Plaintext message cannot be empty.' };
   }
-  if (String(key).trim() === '') {
+  if (plaintext.length > MAX_PLAINTEXT_LENGTH) {
+    return { valid: false, message: `Plaintext message is too long. Please limit it to ${MAX_PLAINTEXT_LENGTH.toLocaleString()} characters.` };
+  }
+
+  const keyText = String(key);
+  if (keyText.length > MAX_KEY_LENGTH) {
+    return { valid: false, message: `Secret key is too long. Please limit it to ${MAX_KEY_LENGTH} characters.` };
+  }
+  if (keyText.trim() === '') {
     return { valid: false, message: 'Secret key cannot be empty. Enter a non-negative integer.' };
   }
   try {
