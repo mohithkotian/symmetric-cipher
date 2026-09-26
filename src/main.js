@@ -102,68 +102,115 @@ function updateEffectiveShift(key) {
   setText('step-card-shift', String(shift));
 }
 
-function escapeHtml(value) {
-  return String(value).replace(/[&<>'"]/g, (character) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-  }[character]));
+function createTextElement(tagName, className, text) {
+  const element = document.createElement(tagName);
+  element.className = className;
+  element.textContent = String(text);
+  return element;
+}
+
+function createCharacterCell(character, cellClass, badgeClass) {
+  const cell = createTextElement('td', cellClass, '');
+  cell.appendChild(createTextElement('span', badgeClass, character));
+  return cell;
 }
 
 function renderTransformationTable(text, key) {
   const container = document.getElementById('caesar-table-container');
   if (!container) return;
 
+  container.replaceChildren();
   if (!text) {
-    container.innerHTML = '<div class="text-on-surface-variant text-sm py-4 text-center">Enter plaintext and a numeric key to view the transformation table.</div>';
+    container.appendChild(createTextElement(
+      'div',
+      'text-on-surface-variant text-sm py-4 text-center',
+      'Enter plaintext and a numeric key to view the transformation table.'
+    ));
     return;
   }
 
   const numericKey = parseNumericKey(key);
   const shift = numericKey % 26;
-  const rows = String(text).split('').map((character, index) => {
+  const table = document.createElement('table');
+  table.className = 'w-full border-collapse text-xs sm:text-sm';
+
+  const headerRow = document.createElement('tr');
+  headerRow.className = 'border-b border-surface-container text-left text-on-surface-variant';
+  ['#', 'Plaintext Character', 'P Value', 'Secret Key', 'Effective Shift', 'Calculation', 'Cipher Character']
+    .forEach((heading, index) => {
+      const headingClass = index === 0
+        ? 'py-2.5 px-3 text-center font-label-md font-medium'
+        : 'py-2.5 px-3 text-center font-label-md font-medium whitespace-nowrap';
+      headerRow.appendChild(createTextElement('th', headingClass, heading));
+    });
+  const tableHead = document.createElement('thead');
+  tableHead.appendChild(headerRow);
+  table.appendChild(tableHead);
+
+  const tableBody = document.createElement('tbody');
+  String(text).split('').forEach((character, index) => {
     const code = character.charCodeAt(0);
     const isUppercase = code >= 65 && code <= 90;
     const isLowercase = code >= 97 && code <= 122;
     const isLetter = isUppercase || isLowercase;
     const displayCharacter = character === ' ' ? '␠' : character;
+    const row = document.createElement('tr');
+    row.className = 'border-b border-surface-container/60 last:border-0';
 
     if (!isLetter) {
-      return `<tr class="border-b border-surface-container/60 last:border-0">
-        <td class="py-2.5 px-3 text-center font-mono text-on-surface-variant">#${index + 1}</td>
-        <td class="py-2.5 px-3 text-center font-bold text-on-surface"><span class="inline-block min-w-[1.5rem] px-2 py-0.5 rounded-lg bg-surface-container-lowest shadow-xs">${escapeHtml(displayCharacter)}</span></td>
-        <td class="py-2.5 px-3 text-center font-mono text-on-surface-variant">—</td>
-        <td class="py-2.5 px-3 text-center font-mono text-on-surface-variant">—</td>
-        <td class="py-2.5 px-3 text-center font-mono text-on-surface-variant">—</td>
-        <td class="py-2.5 px-3 text-center font-mono text-on-surface-variant whitespace-nowrap">unchanged (${escapeHtml(displayCharacter)})</td>
-        <td class="py-2.5 px-3 text-center font-bold text-on-surface"><span class="inline-block min-w-[1.5rem] px-2 py-0.5 rounded-lg bg-surface-container-lowest shadow-xs">${escapeHtml(displayCharacter)}</span></td>
-      </tr>`;
+      const unchangedClass = 'py-2.5 px-3 text-center font-mono text-on-surface-variant';
+      row.appendChild(createTextElement('td', unchangedClass, `#${index + 1}`));
+      row.appendChild(createCharacterCell(
+        displayCharacter,
+        'py-2.5 px-3 text-center font-bold text-on-surface',
+        'inline-block min-w-[1.5rem] px-2 py-0.5 rounded-lg bg-surface-container-lowest shadow-xs'
+      ));
+      row.appendChild(createTextElement('td', unchangedClass, '—'));
+      row.appendChild(createTextElement('td', unchangedClass, '—'));
+      row.appendChild(createTextElement('td', unchangedClass, '—'));
+      row.appendChild(createTextElement('td', `${unchangedClass} whitespace-nowrap`, `unchanged (${displayCharacter})`));
+      row.appendChild(createCharacterCell(
+        displayCharacter,
+        'py-2.5 px-3 text-center font-bold text-on-surface',
+        'inline-block min-w-[1.5rem] px-2 py-0.5 rounded-lg bg-surface-container-lowest shadow-xs'
+      ));
+      tableBody.appendChild(row);
+      return;
     }
 
     const alphabetStart = isUppercase ? 65 : 97;
     const pValue = code - alphabetStart;
     const cipherValue = (pValue + numericKey) % 26;
     const cipherCharacter = String.fromCharCode(cipherValue + alphabetStart);
-    return `<tr class="border-b border-surface-container/60 last:border-0">
-      <td class="py-2.5 px-3 text-center font-mono text-on-surface-variant">#${index + 1}</td>
-      <td class="py-2.5 px-3 text-center font-bold text-on-surface"><span class="inline-block min-w-[1.5rem] px-2 py-0.5 rounded-lg bg-surface-container-lowest shadow-xs">${escapeHtml(character)}</span></td>
-      <td class="py-2.5 px-3 text-center font-mono text-on-surface-variant">${pValue}</td>
-      <td class="py-2.5 px-3 text-center font-mono text-primary font-medium">${numericKey}</td>
-      <td class="py-2.5 px-3 text-center font-mono text-secondary font-medium">${shift}</td>
-      <td class="py-2.5 px-3 text-center font-mono text-on-surface whitespace-nowrap">(${pValue} + ${numericKey}) % 26 = ${cipherValue}</td>
-      <td class="py-2.5 px-3 text-center font-bold text-on-primary-container"><span class="inline-block min-w-[1.5rem] px-2 py-0.5 rounded-lg bg-primary-container">${escapeHtml(cipherCharacter)}</span></td>
-    </tr>`;
-  }).join('');
+    row.appendChild(createTextElement('td', 'py-2.5 px-3 text-center font-mono text-on-surface-variant', `#${index + 1}`));
+    row.appendChild(createCharacterCell(
+      character,
+      'py-2.5 px-3 text-center font-bold text-on-surface',
+      'inline-block min-w-[1.5rem] px-2 py-0.5 rounded-lg bg-surface-container-lowest shadow-xs'
+    ));
+    row.appendChild(createTextElement('td', 'py-2.5 px-3 text-center font-mono text-on-surface-variant', pValue));
+    row.appendChild(createTextElement('td', 'py-2.5 px-3 text-center font-mono text-primary font-medium', numericKey));
+    row.appendChild(createTextElement('td', 'py-2.5 px-3 text-center font-mono text-secondary font-medium', shift));
+    row.appendChild(createTextElement(
+      'td',
+      'py-2.5 px-3 text-center font-mono text-on-surface whitespace-nowrap',
+      `(${pValue} + ${numericKey}) % 26 = ${cipherValue}`
+    ));
+    row.appendChild(createCharacterCell(
+      cipherCharacter,
+      'py-2.5 px-3 text-center font-bold text-on-primary-container',
+      'inline-block min-w-[1.5rem] px-2 py-0.5 rounded-lg bg-primary-container'
+    ));
+    tableBody.appendChild(row);
+  });
 
-  container.innerHTML = `<table class="w-full border-collapse text-xs sm:text-sm">
-    <thead><tr class="border-b border-surface-container text-left text-on-surface-variant">
-      <th class="py-2.5 px-3 text-center font-label-md font-medium">#</th>
-      <th class="py-2.5 px-3 text-center font-label-md font-medium whitespace-nowrap">Plaintext Character</th>
-      <th class="py-2.5 px-3 text-center font-label-md font-medium whitespace-nowrap">P Value</th>
-      <th class="py-2.5 px-3 text-center font-label-md font-medium whitespace-nowrap">Secret Key</th>
-      <th class="py-2.5 px-3 text-center font-label-md font-medium whitespace-nowrap">Effective Shift</th>
-      <th class="py-2.5 px-3 text-center font-label-md font-medium whitespace-nowrap">Calculation</th>
-      <th class="py-2.5 px-3 text-center font-label-md font-medium whitespace-nowrap">Cipher Character</th>
-    </tr></thead><tbody>${rows}</tbody>
-  </table><p class="text-[10px] text-on-surface-variant mt-3">Spaces and punctuation pass through unchanged and do not participate in the letter shift.</p>`;
+  table.appendChild(tableBody);
+  container.appendChild(table);
+  container.appendChild(createTextElement(
+    'p',
+    'text-[10px] text-on-surface-variant mt-3',
+    'Spaces and punctuation pass through unchanged and do not participate in the letter shift.'
+  ));
 }
 
 function updateVerificationUI(isVerified) {
@@ -328,7 +375,12 @@ function resetSimulator() {
     container.classList.remove('opacity-100', 'translate-y-0');
   }
   const termContent = document.getElementById('terminal-content');
-  if (termContent) termContent.innerHTML = '<p class="text-[#A8D5BA]">&gt; Modulo-26 Caesar Cipher</p><p class="text-white/50 italic">[Ready — enter plaintext and numeric key above to execute]</p>';
+  if (termContent) {
+    termContent.replaceChildren(
+      createTextElement('p', 'text-[#A8D5BA]', '> Modulo-26 Caesar Cipher'),
+      createTextElement('p', 'text-white/50 italic', '[Ready — enter plaintext and numeric key above to execute]')
+    );
+  }
 }
 
 function copyCodeSnippet() {
