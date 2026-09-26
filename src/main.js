@@ -1,3 +1,6 @@
+import { encrypt, decrypt } from './ciphers/caesar.js';
+import { encrypt as vigEncrypt, decrypt as vigDecrypt } from './ciphers/vigenere.js';
+
 // Numeric-key modulo-26 Caesar cipher engine
 const MAX_PLAINTEXT_LENGTH = 10000;
 const MAX_KEY_LENGTH = 100;
@@ -18,34 +21,6 @@ function parseNumericKey(key) {
 
 function effectiveKey(key) {
   return parseNumericKey(key) % 26;
-}
-
-/** Encrypt letters with C = (P + K) % 26; non-letters remain unchanged. */
-function encrypt(text, key) {
-  const shift = effectiveKey(key);
-  return String(text).split('').map((character) => {
-    const code = character.charCodeAt(0);
-    const isUppercase = code >= 65 && code <= 90;
-    const isLowercase = code >= 97 && code <= 122;
-    if (!isUppercase && !isLowercase) return character;
-
-    const alphabetStart = isUppercase ? 65 : 97;
-    return String.fromCharCode(((code - alphabetStart + shift) % 26) + alphabetStart);
-  }).join('');
-}
-
-/** Decrypt letters with P = (C - K + 26) % 26; non-letters remain unchanged. */
-function decrypt(text, key) {
-  const shift = effectiveKey(key);
-  return String(text).split('').map((character) => {
-    const code = character.charCodeAt(0);
-    const isUppercase = code >= 65 && code <= 90;
-    const isLowercase = code >= 97 && code <= 122;
-    if (!isUppercase && !isLowercase) return character;
-
-    const alphabetStart = isUppercase ? 65 : 97;
-    return String.fromCharCode(((code - alphabetStart - shift + 26) % 26) + alphabetStart);
-  }).join('');
 }
 
 function validateInputs(plaintext, key) {
@@ -389,6 +364,277 @@ function copyCodeSnippet() {
   alert('Code snippet copied to clipboard!');
 }
 
+// ── Vigenère Cipher Simulator ─────────────────────────────────────────────────
+
+let _vigLastCiphertext = '';
+let _vigLastPlaintext = '';
+let _vigLastKey = '';
+
+function validateVigenereInputs(plaintext, key) {
+  if (!plaintext || plaintext.length === 0) {
+    return { valid: false, message: 'Plaintext message cannot be empty.' };
+  }
+  if (plaintext.length > MAX_PLAINTEXT_LENGTH) {
+    return { valid: false, message: `Plaintext is too long. Limit to ${MAX_PLAINTEXT_LENGTH.toLocaleString()} characters.` };
+  }
+  if (!key || key.trim() === '') {
+    return { valid: false, message: 'Key cannot be empty. Enter one or more letters (A–Z).' };
+  }
+  if (!/^[A-Za-z]+$/.test(key)) {
+    return { valid: false, message: 'Key must contain only letters (A–Z). Digits and symbols are not allowed.' };
+  }
+  return { valid: true, message: '' };
+}
+
+function renderVigenereTape(plaintext, key, ciphertext, mode) {
+  const container = document.getElementById('vig-tape-container');
+  if (!container) return;
+  container.replaceChildren();
+  if (!plaintext || !key) {
+    container.appendChild(createTextElement(
+      'div', 'text-on-surface-variant text-sm py-4 text-center',
+      'Enter plaintext and a letter key to view the character mapping.'
+    ));
+    return;
+  }
+
+  const normKey = key.toUpperCase();
+  let keyIndex = 0;
+  const positions = String(plaintext).split('').map((ch) => {
+    const code = ch.charCodeAt(0);
+    const isLetter = (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+    if (!isLetter) return { ch, isLetter: false, keyCh: null, cipherCh: ch };
+    const base = (code >= 65 && code <= 90) ? 65 : 97;
+    const pVal = code - base;
+    const keyCh = normKey[keyIndex % normKey.length];
+    const kVal = keyCh.charCodeAt(0) - 65;
+    const cVal = mode === 'encrypt' ? (pVal + kVal) % 26 : (pVal - kVal + 26) % 26;
+    keyIndex++;
+    return { ch, isLetter: true, keyCh, kVal, pVal, cVal, cipherCh: String.fromCharCode(cVal + base) };
+  });
+
+  const tapeRows = [
+    { label: 'Plaintext', rowKey: 'plain', colorClass: 'bg-surface-container text-on-surface' },
+    { label: 'Key', rowKey: 'key', colorClass: 'bg-secondary-container text-on-secondary-container' },
+    { label: 'Ciphertext', rowKey: 'cipher', colorClass: 'bg-primary-container text-on-primary-container' },
+  ];
+  const tape = document.createElement('div');
+  tape.className = 'flex flex-col gap-1.5';
+  tapeRows.forEach(({ label, rowKey, colorClass }) => {
+    const row = document.createElement('div');
+    row.className = 'flex items-center gap-1.5';
+    row.appendChild(createTextElement('span', 'text-[10px] uppercase tracking-wider text-on-surface-variant font-medium w-16 shrink-0 text-right pr-2', label));
+    const cells = document.createElement('div');
+    cells.className = 'flex flex-wrap gap-1';
+    positions.forEach((pos) => {
+      const badge = document.createElement('span');
+      badge.className = `inline-flex items-center justify-center w-7 h-7 rounded-md font-mono font-bold text-xs ${pos.isLetter ? colorClass : 'bg-surface-container-low text-on-surface-variant'}`;
+      if (!pos.isLetter) {
+        badge.textContent = rowKey === 'key' ? '—' : (pos.ch === ' ' ? '␠' : pos.ch);
+      } else {
+        if (rowKey === 'plain') badge.textContent = mode === 'encrypt' ? pos.ch : pos.cipherCh;
+        else if (rowKey === 'key') badge.textContent = pos.keyCh;
+        else badge.textContent = mode === 'encrypt' ? pos.cipherCh : pos.ch;
+      }
+      cells.appendChild(badge);
+    });
+    row.appendChild(cells);
+    tape.appendChild(row);
+  });
+  container.appendChild(tape);
+
+  const chipsHeading = createTextElement(
+    'p', 'text-[10px] uppercase tracking-wider text-on-surface-variant font-medium mt-4 mb-1.5',
+    mode === 'encrypt' ? 'Encryption — per-character calculation' : 'Decryption — per-character calculation'
+  );
+  container.appendChild(chipsHeading);
+
+  const chips = document.createElement('div');
+  chips.className = 'flex flex-wrap gap-1.5';
+  positions.forEach((pos) => {
+    const chip = document.createElement('div');
+    if (!pos.isLetter) {
+      const dispCh = pos.ch === ' ' ? '␠' : pos.ch;
+      chip.className = 'flex flex-col items-center bg-surface-container rounded-xl px-2 py-1.5 min-w-[2.75rem] text-center border border-outline-variant/40';
+      chip.appendChild(createTextElement('span', 'font-mono font-bold text-xs text-on-surface-variant', dispCh));
+      chip.appendChild(createTextElement('span', 'text-[8px] text-on-surface-variant/60 leading-tight mt-0.5', 'pass'));
+    } else {
+      chip.className = 'flex flex-col items-center bg-primary-container rounded-xl px-2 py-1.5 min-w-[2.75rem] text-center border border-primary/20 shadow-xs';
+      const op = mode === 'encrypt' ? '+' : '−';
+      chip.appendChild(createTextElement('span', 'font-mono font-bold text-[11px] text-on-primary-container whitespace-nowrap', `${pos.ch}${op}${pos.keyCh}→${pos.cipherCh}`));
+      const calcStr = mode === 'encrypt'
+        ? `(${pos.pVal}+${pos.kVal})%26=${pos.cVal}`
+        : `(${pos.pVal}-${pos.kVal}+26)%26=${pos.cVal}`;
+      chip.appendChild(createTextElement('span', 'text-[8px] text-primary leading-tight mt-0.5', calcStr));
+    }
+    chips.appendChild(chip);
+  });
+  container.appendChild(chips);
+}
+
+function renderVigenereTransformationTable(text, key) {
+  const container = document.getElementById('vig-table-container');
+  if (!container) return;
+  container.replaceChildren();
+  if (!text || !key) {
+    container.appendChild(createTextElement(
+      'div',
+      'text-on-surface-variant text-sm py-4 text-center',
+      'Enter plaintext and a letter key to view the transformation table.'
+    ));
+    return;
+  }
+
+  const normKey = key.toUpperCase();
+  const table = document.createElement('table');
+  table.className = 'w-full border-collapse text-xs sm:text-sm';
+
+  const headerRow = document.createElement('tr');
+  headerRow.className = 'border-b border-surface-container text-left text-on-surface-variant';
+  ['#', 'Plaintext Character', 'P Value', 'Key Character', 'K Value', 'Calculation', 'Cipher Character']
+    .forEach((heading, index) => {
+      const headingClass = index === 0
+        ? 'py-2.5 px-3 text-center font-label-md font-medium'
+        : 'py-2.5 px-3 text-center font-label-md font-medium whitespace-nowrap';
+      headerRow.appendChild(createTextElement('th', headingClass, heading));
+    });
+  const tableHead = document.createElement('thead');
+  tableHead.appendChild(headerRow);
+  table.appendChild(tableHead);
+
+  const tableBody = document.createElement('tbody');
+  let keyIndex = 0;
+  String(text).split('').forEach((character, index) => {
+    const code = character.charCodeAt(0);
+    const isUppercase = code >= 65 && code <= 90;
+    const isLowercase = code >= 97 && code <= 122;
+    const isLetter = isUppercase || isLowercase;
+    const displayCharacter = character === ' ' ? '␠' : character;
+    const row = document.createElement('tr');
+    row.className = 'border-b border-surface-container/60 last:border-0';
+
+    if (!isLetter) {
+      const unchangedClass = 'py-2.5 px-3 text-center font-mono text-on-surface-variant';
+      row.appendChild(createTextElement('td', unchangedClass, `#${index + 1}`));
+      row.appendChild(createCharacterCell(
+        displayCharacter,
+        'py-2.5 px-3 text-center font-bold text-on-surface',
+        'inline-block min-w-[1.5rem] px-2 py-0.5 rounded-lg bg-surface-container-lowest shadow-xs'
+      ));
+      row.appendChild(createTextElement('td', unchangedClass, '—'));
+      row.appendChild(createTextElement('td', unchangedClass, '—'));
+      row.appendChild(createTextElement('td', unchangedClass, '—'));
+      row.appendChild(createTextElement('td', `${unchangedClass} whitespace-nowrap`, `unchanged (${displayCharacter})`));
+      row.appendChild(createCharacterCell(
+        displayCharacter,
+        'py-2.5 px-3 text-center font-bold text-on-surface',
+        'inline-block min-w-[1.5rem] px-2 py-0.5 rounded-lg bg-surface-container-lowest shadow-xs'
+      ));
+    } else {
+      const alphabetStart = isUppercase ? 65 : 97;
+      const pVal = code - alphabetStart;
+      const keyCh = normKey[keyIndex % normKey.length];
+      const kVal = keyCh.charCodeAt(0) - 65;
+      const cVal = (pVal + kVal) % 26;
+      const cipherChar = String.fromCharCode(cVal + alphabetStart);
+      keyIndex++;
+      row.appendChild(createTextElement('td', 'py-2.5 px-3 text-center font-mono text-on-surface-variant', `#${index + 1}`));
+      row.appendChild(createCharacterCell(
+        character,
+        'py-2.5 px-3 text-center font-bold text-on-surface',
+        'inline-block min-w-[1.5rem] px-2 py-0.5 rounded-lg bg-surface-container-lowest shadow-xs'
+      ));
+      row.appendChild(createTextElement('td', 'py-2.5 px-3 text-center font-mono text-on-surface-variant', pVal));
+      row.appendChild(createTextElement('td', 'py-2.5 px-3 text-center font-mono text-secondary font-medium', keyCh));
+      row.appendChild(createTextElement('td', 'py-2.5 px-3 text-center font-mono text-secondary font-medium', kVal));
+      row.appendChild(createTextElement(
+        'td',
+        'py-2.5 px-3 text-center font-mono text-on-surface whitespace-nowrap',
+        `(${pVal} + ${kVal}) % 26 = ${cVal}`
+      ));
+      row.appendChild(createCharacterCell(
+        cipherChar,
+        'py-2.5 px-3 text-center font-bold text-on-primary-container',
+        'inline-block min-w-[1.5rem] px-2 py-0.5 rounded-lg bg-primary-container'
+      ));
+    }
+    tableBody.appendChild(row);
+  });
+
+  table.appendChild(tableBody);
+  container.appendChild(table);
+  container.appendChild(createTextElement(
+    'p',
+    'text-[10px] text-on-surface-variant mt-3',
+    'Spaces and punctuation pass through unchanged. The key character only advances on alphabetic characters.'
+  ));
+}
+
+function updateVigenereKeyInfo(key) {
+  const normKey = key ? key.toUpperCase() : '';
+  setText('vig-key-len', normKey ? `Length: ${normKey.length}` : '—');
+  setText('vig-key-display', normKey || '—');
+}
+
+function runVigenereSimulation(mode) {
+  const plaintext = document.getElementById('vig-input-plaintext')?.value ?? '';
+  const key = document.getElementById('vig-input-key')?.value ?? '';
+  const validation = validateVigenereInputs(plaintext, key);
+  const errorDiv = document.getElementById('vig-error');
+  const errorText = document.getElementById('vig-error-text');
+  if (!validation.valid) {
+    if (errorText) errorText.textContent = validation.message;
+    if (errorDiv) errorDiv.classList.remove('hidden');
+    return false;
+  }
+  if (errorDiv) errorDiv.classList.add('hidden');
+  updateVigenereKeyInfo(key);
+
+  if (mode === 'decrypt') {
+    if (!_vigLastCiphertext) {
+      if (errorText) errorText.textContent = 'No ciphertext available yet. Click Encrypt first.';
+      if (errorDiv) errorDiv.classList.remove('hidden');
+      return false;
+    }
+    const recovered = vigDecrypt(_vigLastCiphertext, key);
+    setText('vig-result-decrypt-text', recovered);
+    document.getElementById('vig-result-decrypt')?.classList.remove('hidden');
+    renderVigenereTape(_vigLastCiphertext, key, recovered, 'decrypt');
+    renderVigenereTransformationTable(_vigLastPlaintext, key);
+    return true;
+  }
+
+  const ciphertext = vigEncrypt(plaintext, key);
+  _vigLastCiphertext = ciphertext;
+  _vigLastPlaintext = plaintext;
+  _vigLastKey = key;
+  setText('vig-result-encrypt-text', ciphertext);
+  document.getElementById('vig-result-encrypt')?.classList.remove('hidden');
+  document.getElementById('vig-result-decrypt')?.classList.add('hidden');
+  renderVigenereTape(plaintext, key, ciphertext, 'encrypt');
+  renderVigenereTransformationTable(plaintext, key);
+  return true;
+}
+
+function runVigenereCompleteSimulation() {
+  if (runVigenereSimulation('encrypt')) runVigenereSimulation('decrypt');
+}
+
+function resetVigenereSimulator() {
+  _vigLastCiphertext = '';
+  _vigLastPlaintext = '';
+  _vigLastKey = '';
+  const pt = document.getElementById('vig-input-plaintext');
+  const k = document.getElementById('vig-input-key');
+  if (pt) pt.value = 'ATTACKATDAWN';
+  if (k) k.value = 'LEMON';
+  document.getElementById('vig-error')?.classList.add('hidden');
+  document.getElementById('vig-result-encrypt')?.classList.add('hidden');
+  document.getElementById('vig-result-decrypt')?.classList.add('hidden');
+  updateVigenereKeyInfo('LEMON');
+  renderVigenereTape('', '', '', 'encrypt');
+}
+
 function runProgramSimulation() {
   runCompleteSimulation();
   document.getElementById('output')?.scrollIntoView({ behavior: 'smooth' });
@@ -418,7 +664,7 @@ async function loadJavaSource() {
   }
 }
 
-const SECTION_IDS = ['introduction', 'objective', 'theory', 'simulator', 'program', 'output', 'procedure', 'result', 'faq'];
+const SECTION_IDS = ['introduction', 'objective', 'theory', 'simulator', 'vigenere', 'program', 'output', 'procedure', 'result', 'faq'];
 let isProgrammaticScroll = false;
 let scrollTimeoutId = null;
 
@@ -525,7 +771,8 @@ function closeAboutModal() {
 Object.assign(window, {
   encrypt, decrypt, parseNumericKey, effectiveKey, runSimulation, runCompleteSimulation,
   resetSimulator, copyCodeSnippet, runProgramSimulation, toggleFaq, loadJavaSource,
-  navigateToSection, setActiveSidebarSection, openAboutModal, closeAboutModal
+  navigateToSection, setActiveSidebarSection, openAboutModal, closeAboutModal,
+  runVigenereSimulation, runVigenereCompleteSimulation, resetVigenereSimulator,
 });
 
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeAboutModal(); });
@@ -535,6 +782,7 @@ function initApp() {
   initSidebarNavigation();
   updateEffectiveShift(30);
   renderTransformationTable('Hello World', 30);
+  updateVigenereKeyInfo('LEMON');
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initApp);
