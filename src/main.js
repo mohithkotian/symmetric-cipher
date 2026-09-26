@@ -1,4 +1,7 @@
 // Numeric-key modulo-26 Caesar cipher engine
+const MAX_PLAINTEXT_LENGTH = 10000;
+const MAX_KEY_LENGTH = 100;
+
 function parseNumericKey(key) {
   const keyText = String(key).trim();
   if (!/^\d+$/.test(keyText)) {
@@ -49,7 +52,15 @@ function validateInputs(plaintext, key) {
   if (!plaintext || plaintext.length === 0) {
     return { valid: false, message: 'Plaintext message cannot be empty.' };
   }
-  if (String(key).trim() === '') {
+  if (plaintext.length > MAX_PLAINTEXT_LENGTH) {
+    return { valid: false, message: `Plaintext message is too long. Please limit it to ${MAX_PLAINTEXT_LENGTH.toLocaleString()} characters.` };
+  }
+
+  const keyText = String(key);
+  if (keyText.length > MAX_KEY_LENGTH) {
+    return { valid: false, message: `Secret key is too long. Please limit it to ${MAX_KEY_LENGTH} characters.` };
+  }
+  if (keyText.trim() === '') {
     return { valid: false, message: 'Secret key cannot be empty. Enter a non-negative integer.' };
   }
   try {
@@ -165,7 +176,7 @@ function updateVerificationUI(isVerified) {
     card.className = 'bg-tertiary-fixed/60 p-4 rounded-2xl shadow-sm flex items-center justify-between gap-4 border border-tertiary transition-all';
     icon.textContent = 'check_circle';
     icon.className = 'material-symbols-outlined text-tertiary text-[20px]';
-    label.textContent = '✓ Verification successful';
+    label.textContent = '✓ Round-trip verified';
   } else {
     card.className = 'bg-error-container/40 p-4 rounded-2xl shadow-sm flex items-center justify-between gap-4 border border-error transition-all';
     icon.textContent = 'cancel';
@@ -205,7 +216,7 @@ function updateTerminal(plaintext, key, ciphertext, recoveredText, isVerified = 
     ['text-[#F4A261] font-bold', '--- Verification ---'],
     ['text-white/80', ''],
     [isVerified ? 'text-[#A8D5BA] font-bold' : 'text-[#FFB4AB] font-bold', isVerified
-      ? '[OK] Verification successful:'
+      ? '[OK] Round-trip verified:'
       : '[FAIL] Verification failed:'],
     [isVerified ? 'text-[#A8D5BA] font-bold' : 'text-[#FFB4AB] font-bold', isVerified
       ? 'Recovered plaintext matches original message!'

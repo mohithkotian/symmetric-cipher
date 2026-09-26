@@ -1,3 +1,4 @@
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
@@ -51,57 +52,61 @@ public class SymmetricMOD26Cipher {
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        try (Scanner scanner = new Scanner(System.in)) {
 
-        System.out.println("==================================================");
-        System.out.println("Symmetric Cipher Model - Modulo-26 Caesar Cipher");
-        System.out.println("==================================================");
+            System.out.println("==================================================");
+            System.out.println("Symmetric Cipher Model - Modulo-26 Caesar Cipher");
+            System.out.println("==================================================");
 
-        System.out.print("Enter plaintext: ");
-        String plaintext = scanner.nextLine();
-        System.out.print("Enter secret key: ");
-        int key = Integer.parseInt(scanner.nextLine().trim());
-        if (key < 0) {
-            System.err.println("Error: Secret key must be a non-negative integer.");
-            scanner.close();
-            return;
+            System.out.print("Enter plaintext: ");
+            String plaintext = scanner.nextLine();
+            System.out.print("Enter secret key: ");
+            int key = Integer.parseInt(scanner.nextLine().trim());
+            if (key < 0) {
+                System.err.println("Error: Secret key must be a non-negative integer.");
+                System.exit(1);
+            }
+
+            int effectiveKey = key % 26;
+            String ciphertext = encrypt(plaintext, key);
+            String recoveredText = decrypt(ciphertext, key);
+
+            System.out.println();
+            System.out.println("--- Key Processing ---");
+            System.out.println();
+            System.out.println("Secret Key: " + key);
+            System.out.println("Effective Shift: " + key + " % 26 = " + effectiveKey);
+
+            System.out.println();
+            System.out.println("--- Encryption Phase ---");
+            System.out.println();
+            System.out.println("Plaintext:        " + plaintext);
+            System.out.println("Secret Key:       " + key);
+            System.out.println("Effective Shift:  " + effectiveKey);
+            System.out.println("Ciphertext:       " + ciphertext);
+
+            System.out.println();
+            System.out.println("--- Decryption Phase ---");
+            System.out.println();
+            System.out.println("Recovered Text:   " + recoveredText);
+
+            System.out.println();
+            System.out.println("--- Verification ---");
+            System.out.println();
+            if (recoveredText.equals(plaintext)) {
+                System.out.println("[OK] Round-trip verified:");
+                System.out.println("Recovered plaintext matches original message!");
+            } else {
+                System.out.println("[FAIL] Verification failed:");
+                System.out.println("Recovered plaintext does not match original message!");
+            }
+        } catch (NumberFormatException error) {
+            System.err.println("Error: Secret key must be a valid non-negative integer.");
+            System.exit(1);
+        } catch (NoSuchElementException error) {
+            System.err.println("Error: input closed before all values were read.");
+            System.exit(1);
         }
-
-        int effectiveKey = key % 26;
-        String ciphertext = encrypt(plaintext, key);
-        String recoveredText = decrypt(ciphertext, key);
-
-        System.out.println();
-        System.out.println("--- Key Processing ---");
-        System.out.println();
-        System.out.println("Secret Key: " + key);
-        System.out.println("Effective Shift: " + key + " % 26 = " + effectiveKey);
-
-        System.out.println();
-        System.out.println("--- Encryption Phase ---");
-        System.out.println();
-        System.out.println("Plaintext:        " + plaintext);
-        System.out.println("Secret Key:       " + key);
-        System.out.println("Effective Shift:  " + effectiveKey);
-        System.out.println("Ciphertext:       " + ciphertext);
-
-        System.out.println();
-        System.out.println("--- Decryption Phase ---");
-        System.out.println();
-        System.out.println("Recovered Text:   " + recoveredText);
-
-        System.out.println();
-        System.out.println("--- Verification ---");
-        System.out.println();
-        if (recoveredText.equals(plaintext)) {
-            System.out.println("[OK] Verification successful:");
-            System.out.println("Recovered plaintext matches original message!");
-        } else {
-            System.out.println("[FAIL] Verification failed:");
-            System.out.println("Recovered plaintext does not match original message!");
-        }
-
-        scanner.close();
     }
 
 }
