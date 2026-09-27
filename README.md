@@ -200,17 +200,7 @@ npm run preview
 
 ---
 
-## Screenshots
 
-_Add screenshots here once the app is running._
-
-```markdown
-![Simulator](screenshots/simulator.png)
-![Transformation Table](screenshots/table.png)
-![Terminal Output](screenshots/terminal.png)
-```
-
----
 
 ## Security disclaimer
 
