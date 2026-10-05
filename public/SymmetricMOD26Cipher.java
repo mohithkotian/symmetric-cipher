@@ -9,7 +9,7 @@ public class SymmetricMOD26Cipher {
 
     /** Encrypt letters with C = (P + effectiveKey) % 26. */
     public static String encrypt(String plaintext, int key) {
-        int effectiveKey = key % 26;
+        int effectiveKey = ((key % 26) + 26) % 26;
         StringBuilder ciphertext = new StringBuilder(plaintext.length());
 
         for (char character : plaintext.toCharArray()) {
@@ -31,7 +31,7 @@ public class SymmetricMOD26Cipher {
 
     /** Decrypt letters with P = (C - effectiveKey + 26) % 26. */
     public static String decrypt(String ciphertext, int key) {
-        int effectiveKey = key % 26;
+        int effectiveKey = ((key % 26) + 26) % 26;
         StringBuilder plaintext = new StringBuilder(ciphertext.length());
 
         for (char character : ciphertext.toCharArray()) {

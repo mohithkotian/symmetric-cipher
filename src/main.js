@@ -259,11 +259,11 @@ function updateTerminal(plaintext, key, ciphertext, recoveredText, isVerified = 
 
 function updateVigenereTerminal(plaintext, key, ciphertext, recoveredText, isVerified = true) {
   const headerEl = document.getElementById('terminal-header-cmd');
-  if (headerEl) headerEl.textContent = 'bash - javac public/VigenereCipher.java';
+  if (headerEl) headerEl.textContent = 'browser - src/ciphers/vigenere.js';
 
   const normKey = key.toUpperCase();
   const lines = [
-    ['text-[#A8D5BA]', '> java VigenereCipher'],
+    ['text-[#A8D5BA]', '> JavaScript Vigenère cipher'],
     ['text-white/40', '=================================================='],
     ['text-white font-bold', 'Polyalphabetic Cipher Model - Vigenère Cipher'],
     ['text-white/40', '=================================================='],
@@ -331,7 +331,7 @@ function updateVigenereTerminal(plaintext, key, ciphertext, recoveredText, isVer
     const kVal = keyCh.charCodeAt(0) - 65;
     const pVal = ((cVal - kVal) + 26) % 26;
     const plainCh = String.fromCharCode(pVal + base);
-    lines.push(['text-white/80', `  ${ch}(${cVal}) - ${keyCh}(${kVal}) = ${cVal - kVal} + 26 % 26 = ${pVal} → ${plainCh}`]);
+    lines.push(['text-white/80', `  ${ch}(${cVal}) - ${keyCh}(${kVal}) = (${cVal} - ${kVal} + 26) % 26 = ${pVal} → ${plainCh}`]);
   });
   lines.push(['text-white font-bold', `Recovered Text: ${recoveredText}`]);
   lines.push(['text-white/40', '']);
@@ -732,7 +732,7 @@ function resetVigenereSimulator() {
   updateVigenereKeyInfo('LEMON');
   renderVigenereTape('', '', '', 'encrypt');
   const headerEl = document.getElementById('terminal-header-cmd');
-  if (headerEl) headerEl.textContent = 'bash - javac public/VigenereCipher.java';
+  if (headerEl) headerEl.textContent = 'browser - src/ciphers/vigenere.js';
   const termContent = document.getElementById('terminal-content');
   if (termContent) {
     termContent.replaceChildren(
@@ -880,6 +880,7 @@ Object.assign(window, {
   resetSimulator, copyCodeSnippet, runProgramSimulation, toggleFaq, loadJavaSource,
   navigateToSection, setActiveSidebarSection, openAboutModal, closeAboutModal,
   runVigenereSimulation, runVigenereCompleteSimulation, resetVigenereSimulator,
+  updateVigenereKeyInfo,
 });
 
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeAboutModal(); });
