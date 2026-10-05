@@ -207,11 +207,22 @@ function updateVerificationUI(isVerified) {
   }
 }
 
-function updateTerminal(plaintext, key, ciphertext, recoveredText, isVerified = true) {
+function flushTerminalLines(lines) {
   const termContent = document.getElementById('terminal-content');
   if (!termContent) return;
   termContent.replaceChildren();
-  const lines = [
+  lines.forEach(([className, text]) => {
+    const line = document.createElement('p');
+    line.className = className;
+    line.textContent = text;
+    termContent.appendChild(line);
+  });
+}
+
+function updateTerminal(plaintext, key, ciphertext, recoveredText, isVerified = true) {
+  const headerEl = document.getElementById('terminal-header-cmd');
+  if (headerEl) headerEl.textContent = 'bash - javac public/SymmetricMOD26Cipher.java';
+  flushTerminalLines([
     ['text-[#A8D5BA]', '> java SymmetricMOD26Cipher'],
     ['text-white/40', '=================================================='],
     ['text-white font-bold', 'Symmetric Cipher Model - Modulo-26 Caesar Cipher'],
@@ -242,14 +253,96 @@ function updateTerminal(plaintext, key, ciphertext, recoveredText, isVerified = 
       : '[FAIL] Verification failed:'],
     [isVerified ? 'text-[#A8D5BA] font-bold' : 'text-[#FFB4AB] font-bold', isVerified
       ? 'Recovered plaintext matches original message!'
-      : 'Recovered plaintext does not match original message!']
+      : 'Recovered plaintext does not match original message!'],
+  ]);
+}
+
+function updateVigenereTerminal(plaintext, key, ciphertext, recoveredText, isVerified = true) {
+  const headerEl = document.getElementById('terminal-header-cmd');
+  if (headerEl) headerEl.textContent = 'bash - javac public/VigenereCipher.java';
+
+  const normKey = key.toUpperCase();
+  const lines = [
+    ['text-[#A8D5BA]', '> java VigenereCipher'],
+    ['text-white/40', '=================================================='],
+    ['text-white font-bold', 'Polyalphabetic Cipher Model - Vigenère Cipher'],
+    ['text-white/40', '=================================================='],
+    ['text-white/80', `Enter plaintext: ${plaintext}`],
+    ['text-white/80', `Enter keyword: ${normKey}`],
+    ['text-white/40', ''],
+    ['text-[#F4A261] font-bold', '--- Key Processing ---'],
+    ['text-white/80', ''],
+    ['text-white/80', `Keyword: ${normKey}`],
+    ['text-white/80', `Plaintext length: ${plaintext.length}`],
   ];
-  lines.forEach(([className, text]) => {
-    const line = document.createElement('p');
-    line.className = className;
-    line.textContent = text;
-    termContent.appendChild(line);
+
+  // Build a per-character key tape (only advances on letters)
+  let keyIdx = 0;
+  const tape = String(plaintext).split('').map((ch) => {
+    const code = ch.charCodeAt(0);
+    const isLetter = (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+    if (!isLetter) return '·';
+    const kCh = normKey[keyIdx++ % normKey.length];
+    return kCh;
+  }).join('');
+  lines.push(['text-white/80', `Key tape:         ${tape}`]);
+  lines.push(['text-white/40', '']);
+  lines.push(['text-[#F4A261] font-bold', '--- Encryption Phase ---']);
+  lines.push(['text-white/80', '']);
+  lines.push(['text-white/80', `Plaintext:  ${plaintext}`]);
+  lines.push(['text-white/80', `Keyword:    ${tape}`]);
+
+  // Per-character encryption lines
+  keyIdx = 0;
+  String(plaintext).split('').forEach((ch) => {
+    const code = ch.charCodeAt(0);
+    const isUpper = code >= 65 && code <= 90;
+    const isLower = code >= 97 && code <= 122;
+    if (!isUpper && !isLower) {
+      lines.push(['text-white/50', `  '${ch === ' ' ? '(space)' : ch}' → unchanged`]);
+      return;
+    }
+    const base = isUpper ? 65 : 97;
+    const pVal = code - base;
+    const keyCh = normKey[keyIdx++ % normKey.length];
+    const kVal = keyCh.charCodeAt(0) - 65;
+    const cVal = (pVal + kVal) % 26;
+    const cipherCh = String.fromCharCode(cVal + base);
+    lines.push(['text-white/80', `  ${ch}(${pVal}) + ${keyCh}(${kVal}) = ${pVal + kVal} % 26 = ${cVal} → ${cipherCh}`]);
   });
+  lines.push(['text-white font-bold', `Ciphertext: ${ciphertext}`]);
+  lines.push(['text-white/40', '']);
+  lines.push(['text-[#F4A261] font-bold', '--- Decryption Phase ---']);
+  lines.push(['text-white/80', '']);
+
+  // Per-character decryption lines
+  keyIdx = 0;
+  String(ciphertext).split('').forEach((ch) => {
+    const code = ch.charCodeAt(0);
+    const isUpper = code >= 65 && code <= 90;
+    const isLower = code >= 97 && code <= 122;
+    if (!isUpper && !isLower) {
+      lines.push(['text-white/50', `  '${ch === ' ' ? '(space)' : ch}' → unchanged`]);
+      return;
+    }
+    const base = isUpper ? 65 : 97;
+    const cVal = code - base;
+    const keyCh = normKey[keyIdx++ % normKey.length];
+    const kVal = keyCh.charCodeAt(0) - 65;
+    const pVal = ((cVal - kVal) + 26) % 26;
+    const plainCh = String.fromCharCode(pVal + base);
+    lines.push(['text-white/80', `  ${ch}(${cVal}) - ${keyCh}(${kVal}) = ${cVal - kVal} + 26 % 26 = ${pVal} → ${plainCh}`]);
+  });
+  lines.push(['text-white font-bold', `Recovered Text: ${recoveredText}`]);
+  lines.push(['text-white/40', '']);
+  lines.push(['text-[#F4A261] font-bold', '--- Verification ---']);
+  lines.push(['text-white/80', '']);
+  lines.push([isVerified ? 'text-[#A8D5BA] font-bold' : 'text-[#FFB4AB] font-bold',
+    isVerified ? '[OK] Round-trip verified:' : '[FAIL] Verification failed:']);
+  lines.push([isVerified ? 'text-[#A8D5BA] font-bold' : 'text-[#FFB4AB] font-bold',
+    isVerified ? 'Recovered plaintext matches original message!' : 'Recovered plaintext does not match original message!']);
+
+  flushTerminalLines(lines);
 }
 
 function revealTrace() {
@@ -349,6 +442,8 @@ function resetSimulator() {
     container.classList.add('opacity-0', 'translate-y-4');
     container.classList.remove('opacity-100', 'translate-y-0');
   }
+  const headerEl = document.getElementById('terminal-header-cmd');
+  if (headerEl) headerEl.textContent = 'bash - javac public/SymmetricMOD26Cipher.java';
   const termContent = document.getElementById('terminal-content');
   if (termContent) {
     termContent.replaceChildren(
@@ -601,10 +696,12 @@ function runVigenereSimulation(mode) {
     document.getElementById('vig-result-decrypt')?.classList.remove('hidden');
     renderVigenereTape(_vigLastCiphertext, key, recovered, 'decrypt');
     renderVigenereTransformationTable(_vigLastPlaintext, key);
+    updateVigenereTerminal(_vigLastPlaintext, key, _vigLastCiphertext, recovered, recovered === _vigLastPlaintext);
     return true;
   }
 
   const ciphertext = vigEncrypt(plaintext, key);
+  const recovered = vigDecrypt(ciphertext, key);
   _vigLastCiphertext = ciphertext;
   _vigLastPlaintext = plaintext;
   _vigLastKey = key;
@@ -613,6 +710,7 @@ function runVigenereSimulation(mode) {
   document.getElementById('vig-result-decrypt')?.classList.add('hidden');
   renderVigenereTape(plaintext, key, ciphertext, 'encrypt');
   renderVigenereTransformationTable(plaintext, key);
+  updateVigenereTerminal(plaintext, key, ciphertext, recovered, recovered === plaintext);
   return true;
 }
 
@@ -633,6 +731,15 @@ function resetVigenereSimulator() {
   document.getElementById('vig-result-decrypt')?.classList.add('hidden');
   updateVigenereKeyInfo('LEMON');
   renderVigenereTape('', '', '', 'encrypt');
+  const headerEl = document.getElementById('terminal-header-cmd');
+  if (headerEl) headerEl.textContent = 'bash - javac public/VigenereCipher.java';
+  const termContent = document.getElementById('terminal-content');
+  if (termContent) {
+    termContent.replaceChildren(
+      createTextElement('p', 'text-[#A8D5BA]', '> Vigenère Cipher'),
+      createTextElement('p', 'text-white/50 italic', '[Ready — enter plaintext and keyword above to execute]')
+    );
+  }
 }
 
 function runProgramSimulation() {
